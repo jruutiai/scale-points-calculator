@@ -1,0 +1,375 @@
+{
+  "items": [
+	{
+	  "title": "body",
+	  "items": [
+		{
+		  "title": "hardBody",
+		  "exclusive": true,
+		  "items": [
+			{
+			  "title": "full",
+			  "points": -12
+			},
+			{
+			  "title": "cab",
+			  "points": -6
+			}
+		  ]
+		},
+		{
+		  "title": "dropBed",
+		  "points": -3
+		},
+		{
+		  "title": "customHardBody",
+		  "exclusive": true,
+		  "items": [
+			{
+			  "title": "full",
+			  "points": -4
+			},
+			{
+			  "title": "cab",
+			  "points": -2
+			}
+		  ]
+		},
+		{
+		  "title": "innerFenders",
+		  "points": -1,
+		  "allowMultiple": true
+		}
+	  ]
+	},
+	{
+	  "title": "bed",
+	  "items": [
+		{
+		  "title": "tubeOrFlatbed",
+		  "exclusive": true,
+		  "items": [
+			{
+			  "title": "metal",
+			  "points": -3
+			},
+			{
+			  "title": "plastic",
+			  "points": -1
+			}
+		  ]
+		},
+		{
+		  "title": "headacheRackOrRollBar",
+		  "exclusive": true,
+		  "items": [
+			{
+			  "title": "metal",
+			  "points": -2
+			},
+			{
+			  "title": "plastic",
+			  "points": -1
+			}
+		  ]
+		}
+	  ]
+	},
+	{
+	  "title": "tubersTruggiesAndRollCages",
+	  "items": [
+		{
+		  "title": "truggy",
+		  "subtitle": "class23Only",
+		  "exclusive": true,
+		  "items": [
+			{
+			  "title": "metal",
+			  "points": -4
+			},
+			{
+			  "title": "plastic",
+			  "points": -2
+			}
+		  ]
+		},
+		{
+		  "title": "tubeFrame",
+		  "subtitle": "class3Only",
+		  "exclusive": true,
+		  "items": [
+			{
+			  "title": "metal",
+			  "points": -8
+			},
+			{
+			  "title": "plastic",
+			  "points": -4
+			}
+		  ]
+		},
+		{
+		  "title": "rigidBodyPanels",
+		  "points": -1
+		},
+		{
+		  "title": "interiorOrExoCage",
+		  "subtitle": "interiorOrExoCageSubtitle",
+		  "exclusive": true,
+		  "items": [
+			{
+			  "title": "metal",
+			  "points": -3,
+			  "allowMultiple": true
+			},
+			{
+			  "title": "plastic",
+			  "points": -1,
+			  "allowMultiple": true
+			}
+		  ]
+		}
+	  ]
+	},
+	{
+	  "title": "tubePlateAccessories",
+	  "items": [
+		{
+		  "title": "sliders",
+		  "subtitle": "perPair",
+		  "exclusive": true,
+		  "items": [
+			{
+			  "title": "metal",
+			  "points": -4
+			},
+			{
+			  "title": "plastic",
+			  "points": -2
+			}
+		  ]
+		},
+		{
+		  "title": "bumpers",
+		  "exclusive": true,
+		  "items": [
+			{
+			  "title": "metal",
+			  "points": -4,
+			  "allowMultiple": true
+			},
+			{
+			  "title": "plastic",
+			  "points": -2,
+			  "allowMultiple": true
+			}
+		  ]
+		},
+		{
+		  "title": "stinger",
+		  "points": -1
+		},
+		{
+		  "title": "shockMounts",
+		  "points": -1,
+		  "allowMultiple": true,
+		  "subtitle": "perPair"
+		},
+		{
+		  "title": "roofRack",
+		  "subtitle": "roofRackOrLightbarOnly",
+		  "exclusive": true,
+		  "items": [
+			{
+			  "title": "metal",
+			  "points": -3
+			},
+			{
+			  "title": "plastic",
+			  "points": -1
+			},
+			{
+			  "title": "lightbar",
+			  "points": -1
+			}
+		  ]
+		}
+	  ]
+	},
+	{
+	  "title": "interior",
+	  "items": [
+		{
+		  "title": "fullInterior",
+		  "exclusive": true,
+		  "items": [
+			{
+			  "title": "1seat",
+			  "points": -3
+			},
+			{
+			  "title": "2seat",
+			  "points": -4
+			},
+			{
+			  "title": "4seat",
+			  "points": -5
+			}
+		  ]
+		},
+		{
+		  "title": "customFullInterior",
+		  "points": -2
+		},
+		{
+		  "title": "suvCargoArea",
+		  "points": -1
+		},
+		{
+		  "title": "driver",
+		  "exclusive": true,
+		  "items": [
+			{
+			  "title": "fullFigure",
+			  "points": -4
+			},
+			{
+			  "title": "kneesUp",
+			  "points": -3
+			},
+			{
+			  "title": "torso",
+			  "points": -2
+			},
+			{
+			  "title": "head",
+			  "points": -1
+			}
+		  ]
+		},
+		{
+		  "title": "passenger",
+		  "exclusive": true,
+		  "items": [
+			{
+			  "title": "fullFigure",
+			  "points": -4
+			},
+			{
+			  "title": "kneesUp",
+			  "points": -3
+			},
+			{
+			  "title": "torso",
+			  "points": -2
+			},
+			{
+			  "title": "head",
+			  "points": -1
+			}
+		  ]
+		},
+		{
+		  "title": "interiorCover",
+		  "exclusive": true,
+		  "items": [
+			{
+			  "title": "1seat",
+			  "points": -1
+			},
+			{
+			  "title": "2seat",
+			  "points": -2
+			},
+			{
+			  "title": "4seat",
+			  "points": -3
+			}
+		  ]
+		},
+		{
+		  "title": "interiorDriver",
+		  "points": -1
+		}
+	  ]
+	},
+	{
+	  "title": "suspension",
+	  "items": [
+		{
+		  "title": "leafSprings",
+		  "exclusive": true,
+		  "items": [
+			{
+			  "title": "1axle",
+			  "points": -3
+			},
+			{
+			  "title": "2axle",
+			  "points": -7
+			}
+		  ]
+		},
+		{
+		  "title": "multiAxle",
+		  "exclusive": true,
+		  "items": [
+			{
+			  "title": "3axle",
+			  "points": -3
+			},
+			{
+			  "title": "4axle",
+			  "points": -5
+			}
+		  ]
+		},
+		{
+		  "title": "cms",
+		  "items": [
+			{
+			  "title": "front",
+			  "points": -5
+			},
+			{
+			  "title": "rear",
+			  "points": -2,
+			  "subtitle": "class3Only"
+			}
+		  ]
+		},
+		{
+		  "title": "transferCase",
+		  "points": -4
+		},
+		{
+		  "title": "engine",
+		  "points": -4
+		}
+	  ]
+	},
+	{
+	  "title": "accessories",
+	  "items": [
+		{
+		  "title": "nonFunctional",
+		  "subtitle": "nonFunctionalSubtitle",
+		  "maxSelections": 6,
+		  "allowMultiple": true,
+		  "points": -1
+		},
+		{
+		  "title": "functional",
+		  "subtitle": "functionalSubtitle",
+		  "maxSelections": 8,
+		  "allowMultiple": true,
+		  "points": -1
+		},
+		{
+		  "title": "spareTire",
+		  "points": -3
+		}
+	  ]
+	}
+  ]
+}
