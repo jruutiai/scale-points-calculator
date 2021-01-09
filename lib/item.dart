@@ -15,7 +15,7 @@ class Item {
         subtitle = json['subtitle'],
         items = json['items'] != null
             ? List<Item>.from(json['items'].map((i) => Item.fromJson(i)))
-            : List<Item>(),
+            : <Item>[],
         points = json['points'],
         maxSelections = json['maxSelections'],
         allowMultiple = json['allowMultiple'],

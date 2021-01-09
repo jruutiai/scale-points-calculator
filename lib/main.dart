@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -40,7 +41,7 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
   final _saved = <Item>[];
   final _headerFont = TextStyle(fontSize: 22.0);
   final _biggerFont = TextStyle(fontSize: 18.0);
-  var points;
+  Item points;
   var loading = true;
   Locale locale;
 
@@ -83,27 +84,110 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
               child: Text(
                   "${AppLocalizations.of(context).translate('totalPoints')}: ${getPoints()}",
                   style: _headerFont)),
+          FlatButton(
+            color: ThemeData.light().buttonColor,
+            padding: EdgeInsets.all(16.0),
+            onPressed: getPoints() < 0
+                ? () {
+                    _showSummaryView();
+                  }
+                : null,
+            child: Text(
+              AppLocalizations.of(context).translate('summary'),
+              style: _biggerFont,
+            ),
+          ),
           Expanded(
               child: ListView.builder(
-                          padding: EdgeInsets.all(16.0),
-                          itemBuilder: (context, i) {
-                            if (i >= points.items.length) {
-                              return null;
-                            }
-                            return Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                mainAxisSize: MainAxisSize.max,
-                                children: <Widget>[
-                                  Divider(),
-                                  Center(
-                                      child: Container(
-                                      constraints: BoxConstraints(minWidth: 200, maxWidth: 800),
+                  padding: EdgeInsets.all(16.0),
+                  itemBuilder: (context, i) {
+                    if (i >= points.items.length) {
+                      return null;
+                    }
+                    return Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.max,
+                        children: <Widget>[
+                          Divider(),
+                          Center(
+                              child: Container(
+                                  constraints: BoxConstraints(
+                                      minWidth: 200, maxWidth: 800),
                                   child: _buildRow(points.items[i])))
-                                ]);
-                          }))
+                        ]);
+                  }))
         ],
       );
     }
+  }
+
+  Item _getParentFromBranch(Item item, Item branch) {
+    if (branch.items.contains(item)) {
+      return branch;
+    } else {
+      for (Item element in branch.items){
+        final ret = _getParentFromBranch(item, element);
+        if (ret != null) {
+          return ret;
+        }
+      }
+    }
+    return null;
+  }
+
+  String _getFullName(Item item) {
+    final parent = _getParentFromBranch(item, points);
+    if (parent == points) {
+      return AppLocalizations.of(context).translate(item.title);
+    } else {
+      return "${_getFullName(parent)} - ${AppLocalizations.of(context).translate(item.title)}";
+    }
+  }
+
+  void _showSummaryView() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) {
+          Map<Item, int> savedCounts = LinkedHashMap<Item, int>();
+
+          for(Item i in _saved) {
+            if(savedCounts.containsKey(i)) {
+              savedCounts.update(i, (v) { return v + 1; });
+            } else {
+              savedCounts[i] = 1;
+            }
+          }
+
+          List<ListTile> tiles = <ListTile>[];
+
+          savedCounts.forEach((key, value) {
+            tiles.add(ListTile(
+              title: Text(
+                "${_getFullName(key)} (${key.points}) ${value > 1 ? "x $value" : ""}",
+              ),
+            ));
+          });
+
+          tiles.add(ListTile(
+            title: Text(
+              "",
+            ),
+          ));
+
+          final divided = ListTile.divideTiles(
+            context: context,
+            tiles: tiles,
+          ).toList();
+
+          return Scaffold(
+            appBar: AppBar(
+              title: Text("${AppLocalizations.of(context).translate('totalPoints')}: ${getPoints()}"),
+            ),
+            body: ListView(children: divided),
+          );
+        },
+      ),
+    );
   }
 
   int getPoints() {

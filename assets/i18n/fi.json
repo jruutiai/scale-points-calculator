@@ -64,7 +64,6 @@
   "functional": "Toimivat esineet",
   "spareTire": "Vararengas",
   "functionalSubtitle": "Etuvinssi -2, Takavinssi -2, Valot (2 edessä & 2 takana) -2, muut -1. Esim. hinausliina, sakkeli, maa-ankkuri, ajosillat, peräkoukku, avautuvat ovet ja konepelti, vararengasteline",
-  "language": "Valitse kieli",
-  "fi": "Suomi",
-  "en": "Englanti"
+  "summary": "Pisteyhteenvesto",
+  "showSummary": "Näytä yhteenveto"
 }
