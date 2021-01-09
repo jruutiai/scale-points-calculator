@@ -5,14 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:language_pickers/language_picker_dialog.dart';
 import 'package:language_pickers/languages.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'item.dart';
 
 void main() {
   runApp(
     EasyLocalization(
+        useOnlyLangCode: true,
         supportedLocales: [Locale('en'), Locale('fi')],
-        path: 'assets/i18n', // <-- change patch to your
+        path: 'assets/i18n',
         fallbackLocale: Locale('en'),
         child: MyApp()),
   );
@@ -44,13 +46,36 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
   final _headerFont = TextStyle(fontSize: 22.0);
   final _biggerFont = TextStyle(fontSize: 18.0);
   final _listFont = TextStyle(fontSize: 16.0);
-  Item points;
+  Item _points;
+  final _savedKey = "SAVED_ITEMS";
 
   loadJson() async {
     String data = await rootBundle.loadString('assets/points.json');
+    final points = Item.fromJson(json.decode(data));
+    final saved = <Item>[];
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final savedKeys = prefs.getStringList(_savedKey);
+
+    if(savedKeys != null) {
+      savedKeys.forEach((element) {
+        saved.add(findItem(element, points));
+      });
+    }
+
     setState(() {
-      points = Item.fromJson(json.decode(data));
+      _points = points;
+      _saved.addAll(saved);
     });
+  }
+
+  Item findItem(String key, Item item) {
+    final keys = key.split(".");
+    final found = item.items.where((element) => element.title == keys[0]).first;
+    if (keys.length == 1) {
+      return found;
+    } else {
+      return findItem(keys.sublist(1).join("."), found);
+    }
   }
 
   @override
@@ -98,7 +123,7 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
       );
 
   Widget _buildUI() {
-    if (points == null) {
+    if (_points == null) {
       return Text(tr('loading'));
     } else {
       return Column(
@@ -113,7 +138,7 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
               child: ListView.builder(
                   padding: EdgeInsets.all(16.0),
                   itemBuilder: (context, i) {
-                    if (i >= points.items.length) {
+                    if (i >= _points.items.length) {
                       return null;
                     }
                     return Column(
@@ -125,7 +150,7 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
                               child: Container(
                                   constraints: BoxConstraints(
                                       minWidth: 200, maxWidth: 800),
-                                  child: _buildRow(points.items[i])))
+                                  child: _buildRow(_points.items[i])))
                         ]);
                   })),
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -136,8 +161,8 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
                   padding: EdgeInsets.all(16.0),
                   onPressed: getPoints() < 0
                       ? () {
-                    _showSummaryView();
-                  }
+                          _showSummaryView();
+                        }
                       : null,
                   child: Text(
                     tr('summary'),
@@ -149,10 +174,8 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
                 child: FlatButton(
                   color: ThemeData.light().buttonColor,
                   padding: EdgeInsets.all(16.0),
-                  onPressed: () {
-                    setState(() {
-                      _saved.clear();
-                    });
+                  onPressed: () async {
+                    await _clearSaved();
                   },
                   child: Text(
                     tr('clear'),
@@ -162,6 +185,29 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
           ])
         ],
       );
+    }
+  }
+
+  Item _getParentFromBranch(Item item, Item branch) {
+    if (branch.items.contains(item)) {
+      return branch;
+    } else {
+      for (Item element in branch.items) {
+        final ret = _getParentFromBranch(item, element);
+        if (ret != null) {
+          return ret;
+        }
+      }
+    }
+    return null;
+  }
+
+  String _getFullPath(Item item) {
+    final parent = _getParentFromBranch(item, _points);
+    if (parent == _points) {
+      return item.title;
+    } else {
+      return "${_getFullPath(parent)}.${item.title}";
     }
   }
 
@@ -212,7 +258,7 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
         builder: (BuildContext context) {
           List<Widget> tiles = <Widget>[];
 
-          points.items.forEach((element) {
+          _points.items.forEach((element) {
             tiles.addAll(getTilesForSelectedSubItems(element, 0));
           });
 
@@ -238,6 +284,33 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
     return points;
   }
 
+  Future<bool> _clearSaved() async {
+    setState(() {
+      _saved.clear();
+    });
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.remove(_savedKey);
+  }
+
+  Future<bool> _add(Item item) async {
+    setState(() {
+      _saved.add(item);
+    });
+    final savedPaths = _saved.map((e) => _getFullPath(e)).toList();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.setStringList(_savedKey, savedPaths);
+  }
+
+  Future<bool> _remove(Item item) async {
+    setState(() {
+      _saved.remove(item);
+    });
+    final savedPaths = _saved.map((e) => _getFullPath(e)).toList();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_savedKey);
+    return prefs.setStringList(_savedKey, savedPaths);
+  }
+
   Widget _buildRow(Item item, [Item parent]) {
     final alreadySaved = _saved.where((element) => element == item).length;
     if (item.points != null) {
@@ -256,10 +329,8 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
                             color: alreadySaved > 0
                                 ? ThemeData.light().accentColor
                                 : ThemeData.light().disabledColor),
-                        onPressed: () {
-                          setState(() {
-                            _saved.remove(item);
-                          });
+                        onPressed: () async {
+                          await _remove(item);
                         },
                       ),
                       Padding(
@@ -271,12 +342,10 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
                                     alreadySaved < item.maxSelections
                                 ? ThemeData.light().accentColor
                                 : ThemeData.light().disabledColor),
-                        onPressed: () {
+                        onPressed: () async {
                           if (item.maxSelections == null ||
                               alreadySaved < item.maxSelections) {
-                            setState(() {
-                              _saved.add(item);
-                            });
+                            await _add(item);
                           }
                         },
                       )
@@ -291,22 +360,20 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
                             ? ThemeData.light().primaryColor
                             : ThemeData.light().accentColor,
                       )),
-              onTap: () {
-                setState(() {
-                  if (item.allowMultiple != null && item.allowMultiple) {
-                    return;
+              onTap: () async {
+                if (item.allowMultiple != null && item.allowMultiple) {
+                  return;
+                }
+                if (alreadySaved > 0) {
+                  await _remove(item);
+                } else {
+                  if (parent.exclusive != null && parent.exclusive) {
+                    parent.items.forEach((element) async {
+                      await _remove(element);
+                    });
                   }
-                  if (alreadySaved > 0) {
-                    _saved.remove(item);
-                  } else {
-                    if (parent.exclusive != null && parent.exclusive) {
-                      parent.items.forEach((element) {
-                        _saved.remove(element);
-                      });
-                    }
-                    _saved.add(item);
-                  }
-                });
+                  await _add(item);
+                }
               }));
     } else {
       var children = <Widget>[

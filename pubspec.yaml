@@ -34,6 +34,8 @@ dependencies:
   language_pickers: ^0.2.0+1
   easy_localization: ^2.3.3
 
+  shared_preferences: ^0.5.4+8
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
