@@ -66,5 +66,6 @@
   "functionalSubtitle": "Front Winch -2, Rear Winch -2, Lights (2 front & 2 rear) -2, others -1. Examples: Tow strap, D-ring, Pull Pal, sand ladder, hitch, opening doors and hood, spare tire mount",
   "summary": "Points summary",
   "showSummary": "Show summary",
-  "selectLanguage": "Select your language"
+  "selectLanguage": "Select your language",
+  "clear": "Clear"
 }

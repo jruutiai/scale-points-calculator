@@ -109,19 +109,6 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
               padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Text("${tr('totalPoints')}: ${getPoints()}",
                   style: _headerFont)),
-          FlatButton(
-            color: ThemeData.light().buttonColor,
-            padding: EdgeInsets.all(16.0),
-            onPressed: getPoints() < 0
-                ? () {
-                    _showSummaryView();
-                  }
-                : null,
-            child: Text(
-              tr('summary'),
-              style: _biggerFont,
-            ),
-          ),
           Expanded(
               child: ListView.builder(
                   padding: EdgeInsets.all(16.0),
@@ -140,7 +127,39 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
                                       minWidth: 200, maxWidth: 800),
                                   child: _buildRow(points.items[i])))
                         ]);
-                  }))
+                  })),
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: FlatButton(
+                  color: ThemeData.light().buttonColor,
+                  padding: EdgeInsets.all(16.0),
+                  onPressed: getPoints() < 0
+                      ? () {
+                    _showSummaryView();
+                  }
+                      : null,
+                  child: Text(
+                    tr('summary'),
+                    style: _biggerFont,
+                  ),
+                )),
+            Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: FlatButton(
+                  color: ThemeData.light().buttonColor,
+                  padding: EdgeInsets.all(16.0),
+                  onPressed: () {
+                    setState(() {
+                      _saved.clear();
+                    });
+                  },
+                  child: Text(
+                    tr('clear'),
+                    style: _biggerFont,
+                  ),
+                ))
+          ])
         ],
       );
     }

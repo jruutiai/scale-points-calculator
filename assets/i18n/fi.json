@@ -4,7 +4,7 @@
   "totalPoints": "Kokonaispisteet",
   "body": "Kori",
   "hardBody": "Kovakori",
-  "full": "Koko",
+  "full": "Kokonainen",
   "cab": "Ohjaamo",
   "dropBed": "Syvä lava",
   "customHardBody": "Omavalmiste kori",
@@ -66,5 +66,6 @@
   "functionalSubtitle": "Etuvinssi -2, Takavinssi -2, Valot (2 edessä & 2 takana) -2, muut -1. Esim. hinausliina, sakkeli, maa-ankkuri, ajosillat, peräkoukku, avautuvat ovet ja konepelti, vararengasteline",
   "summary": "Pisteyhteenveto",
   "showSummary": "Näytä yhteenveto",
-  "selectLanguage": "Valitse kieli"
+  "selectLanguage": "Valitse kieli",
+  "clear": "Tyhjennä"
 }
