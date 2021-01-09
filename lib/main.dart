@@ -1,28 +1,31 @@
 import 'dart:convert';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:language_pickers/language_picker_dialog.dart';
+import 'package:language_pickers/languages.dart';
 
-import 'AppLocalizations.dart';
 import 'item.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  runApp(
+    EasyLocalization(
+        supportedLocales: [Locale('en'), Locale('fi')],
+        path: 'assets/i18n', // <-- change patch to your
+        fallbackLocale: Locale('en'),
+        child: MyApp()),
+  );
+}
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      localizationsDelegates: [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales:
-          AppLocalizationsDelegate.supportedLocales.map((e) => Locale(e)),
-      onGenerateTitle: (context) =>
-          AppLocalizations.of(context).translate('appName'),
+      localizationsDelegates: context.localizationDelegates,
+      supportedLocales: context.supportedLocales,
+      locale: context.locale,
+      onGenerateTitle: (context) => tr('appName'),
       theme: ThemeData(
         primaryColor: Colors.white,
       ),
@@ -42,12 +45,12 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
   final _biggerFont = TextStyle(fontSize: 18.0);
   final _listFont = TextStyle(fontSize: 16.0);
   Item points;
-  var loading = true;
-  Locale locale;
 
   loadJson() async {
     String data = await rootBundle.loadString('assets/points.json');
-    points = Item.fromJson(json.decode(data));
+    setState(() {
+      points = Item.fromJson(json.decode(data));
+    });
   }
 
   @override
@@ -55,9 +58,6 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await loadJson();
-      setState(() {
-        loading = false;
-      });
     });
   }
 
@@ -65,15 +65,41 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context).translate('appName')),
+        title: Text(tr('appName')),
+        actions: [
+          IconButton(
+              icon: Icon(Icons.list), onPressed: _openLanguagePickerDialog),
+        ],
       ),
       body: _buildUI(),
     );
   }
 
+  Widget _buildDialogItem(Language language) => Text(language.name);
+
+  void _openLanguagePickerDialog() => showDialog(
+        context: context,
+        builder: (context) => Theme(
+            data: Theme.of(context).copyWith(primaryColor: Colors.pink),
+            child: LanguagePickerDialog(
+                languagesList: defaultLanguagesList
+                    .where((element) => context.supportedLocales
+                        .map((e) => e.languageCode)
+                        .contains(element['isoCode']))
+                    .toList()
+                    .cast<Map<String, String>>(),
+                titlePadding: EdgeInsets.all(8.0),
+                isSearchable: false,
+                title: Text(tr('selectLanguage')),
+                onValuePicked: (Language language) => setState(() {
+                      context.locale = Locale(language.isoCode);
+                    }),
+                itemBuilder: _buildDialogItem)),
+      );
+
   Widget _buildUI() {
-    if (loading) {
-      return Text(AppLocalizations.of(context).translate('loading'));
+    if (points == null) {
+      return Text(tr('loading'));
     } else {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -81,8 +107,7 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
         children: <Widget>[
           Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              child: Text(
-                  "${AppLocalizations.of(context).translate('totalPoints')}: ${getPoints()}",
+              child: Text("${tr('totalPoints')}: ${getPoints()}",
                   style: _headerFont)),
           FlatButton(
             color: ThemeData.light().buttonColor,
@@ -93,7 +118,7 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
                   }
                 : null,
             child: Text(
-              AppLocalizations.of(context).translate('summary'),
+              tr('summary'),
               style: _biggerFont,
             ),
           ),
@@ -147,14 +172,13 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
       list.add(Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.0 * level, vertical: 4),
           child: Text(
-            "${AppLocalizations.of(context).translate(item.title)} (${item.points * count})",
+            "${tr(item.title)} (${item.points * count})",
             style: _listFont,
           )));
     } else if (_hasSelectedChildren(item)) {
       list.add(Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.0 * level, vertical: 4),
-          child: Text(AppLocalizations.of(context).translate(item.title),
-              style: _listFont)));
+          child: Text(tr(item.title), style: _listFont)));
       item.items.forEach((element) {
         list.addAll(getTilesForSelectedSubItems(element, level + 1));
       });
@@ -175,8 +199,7 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
 
           return Scaffold(
             appBar: AppBar(
-              title: Text(
-                  "${AppLocalizations.of(context).translate('totalPoints')}: ${getPoints()}"),
+              title: Text("${tr('totalPoints')}: ${getPoints()}"),
             ),
             body: ListView(
               padding: EdgeInsets.all(16),
@@ -203,12 +226,10 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
           padding: const EdgeInsets.only(left: 8),
           child: ListTile(
               title: Text(
-                "${AppLocalizations.of(context).translate(item.title)} (${item.points})",
+                "${tr(item.title)} (${item.points})",
                 style: _biggerFont,
               ),
-              subtitle: item.subtitle != null
-                  ? Text(AppLocalizations.of(context).translate(item.subtitle))
-                  : null,
+              subtitle: item.subtitle != null ? Text(tr(item.subtitle)) : null,
               trailing: item.allowMultiple != null && item.allowMultiple
                   ? Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
                       IconButton(
@@ -272,12 +293,10 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
       var children = <Widget>[
         ListTile(
             title: Text(
-              AppLocalizations.of(context).translate(item.title),
+              tr(item.title),
               style: _headerFont,
             ),
-            subtitle: item.subtitle != null
-                ? Text(AppLocalizations.of(context).translate(item.subtitle))
-                : null)
+            subtitle: item.subtitle != null ? Text(tr(item.subtitle)) : null)
       ];
       item.items.forEach((element) {
         children.add(_buildRow(element, item));
