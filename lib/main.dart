@@ -1,4 +1,3 @@
-import 'dart:collection';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -41,6 +40,7 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
   final _saved = <Item>[];
   final _headerFont = TextStyle(fontSize: 22.0);
   final _biggerFont = TextStyle(fontSize: 18.0);
+  final _listFont = TextStyle(fontSize: 16.0);
   Item points;
   var loading = true;
   Locale locale;
@@ -121,69 +121,67 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
     }
   }
 
-  Item _getParentFromBranch(Item item, Item branch) {
-    if (branch.items.contains(item)) {
-      return branch;
-    } else {
-      for (Item element in branch.items){
-        final ret = _getParentFromBranch(item, element);
-        if (ret != null) {
-          return ret;
+  bool _hasSelectedChildren(Item item) {
+    var ret = false;
+    if (item.items != null) {
+      item.items.forEach((element) {
+        if (_saved.contains(element)) {
+          ret = true;
         }
-      }
+
+        if (element.items != null) {
+          if (_hasSelectedChildren(element)) {
+            ret = true;
+          }
+        }
+      });
     }
-    return null;
+
+    return ret;
   }
 
-  String _getFullName(Item item) {
-    final parent = _getParentFromBranch(item, points);
-    if (parent == points) {
-      return AppLocalizations.of(context).translate(item.title);
-    } else {
-      return "${_getFullName(parent)} - ${AppLocalizations.of(context).translate(item.title)}";
+  List<Widget> getTilesForSelectedSubItems(Item item, int level) {
+    List<Widget> list = <Widget>[];
+    if (_saved.contains(item)) {
+      final count = _saved.where((element) => element == item).length;
+      list.add(Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0 * level, vertical: 4),
+          child: Text(
+            "${AppLocalizations.of(context).translate(item.title)} (${item.points * count})",
+            style: _listFont,
+          )));
+    } else if (_hasSelectedChildren(item)) {
+      list.add(Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0 * level, vertical: 4),
+          child: Text(AppLocalizations.of(context).translate(item.title),
+              style: _listFont)));
+      item.items.forEach((element) {
+        list.addAll(getTilesForSelectedSubItems(element, level + 1));
+      });
     }
+
+    return list;
   }
 
   void _showSummaryView() {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (BuildContext context) {
-          Map<Item, int> savedCounts = LinkedHashMap<Item, int>();
+          List<Widget> tiles = <Widget>[];
 
-          for(Item i in _saved) {
-            if(savedCounts.containsKey(i)) {
-              savedCounts.update(i, (v) { return v + 1; });
-            } else {
-              savedCounts[i] = 1;
-            }
-          }
-
-          List<ListTile> tiles = <ListTile>[];
-
-          savedCounts.forEach((key, value) {
-            tiles.add(ListTile(
-              title: Text(
-                "${_getFullName(key)} (${key.points}) ${value > 1 ? "x $value" : ""}",
-              ),
-            ));
+          points.items.forEach((element) {
+            tiles.addAll(getTilesForSelectedSubItems(element, 0));
           });
-
-          tiles.add(ListTile(
-            title: Text(
-              "",
-            ),
-          ));
-
-          final divided = ListTile.divideTiles(
-            context: context,
-            tiles: tiles,
-          ).toList();
 
           return Scaffold(
             appBar: AppBar(
-              title: Text("${AppLocalizations.of(context).translate('totalPoints')}: ${getPoints()}"),
+              title: Text(
+                  "${AppLocalizations.of(context).translate('totalPoints')}: ${getPoints()}"),
             ),
-            body: ListView(children: divided),
+            body: ListView(
+              padding: EdgeInsets.all(16),
+              children: tiles,
+            ),
           );
         },
       ),
