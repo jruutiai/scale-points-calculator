@@ -24,7 +24,6 @@ class MyApp extends StatelessWidget {
       onGenerateTitle: (context) =>
           AppLocalizations.of(context).translate('appName'),
       theme: ThemeData(
-        // Add the 3 lines from here...
         primaryColor: Colors.white,
       ),
       home: ScalePointsCalculator(),
@@ -75,21 +74,17 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
     if (loading) {
       return Text(AppLocalizations.of(context).translate('loading'));
     } else {
-      return Center(
-          child: Container(
-              constraints: BoxConstraints(minWidth: 200, maxWidth: 800),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.max,
-                children: <Widget>[
-                  Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                      child: Text(
-                          "${AppLocalizations.of(context).translate('totalPoints')}: ${getPoints()}",
-                          style: _headerFont)),
-                  Expanded(
-                      child: ListView.builder(
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.max,
+        children: <Widget>[
+          Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Text(
+                  "${AppLocalizations.of(context).translate('totalPoints')}: ${getPoints()}",
+                  style: _headerFont)),
+          Expanded(
+              child: ListView.builder(
                           padding: EdgeInsets.all(16.0),
                           itemBuilder: (context, i) {
                             if (i >= points.items.length) {
@@ -100,11 +95,14 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
                                 mainAxisSize: MainAxisSize.max,
                                 children: <Widget>[
                                   Divider(),
-                                  _buildRow(points.items[i])
+                                  Center(
+                                      child: Container(
+                                      constraints: BoxConstraints(minWidth: 200, maxWidth: 800),
+                                  child: _buildRow(points.items[i])))
                                 ]);
                           }))
-                ],
-              )));
+        ],
+      );
     }
   }
 
@@ -172,7 +170,6 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
                             : ThemeData.light().accentColor,
                       )),
               onTap: () {
-                // NEW lines from here...
                 setState(() {
                   if (item.allowMultiple != null && item.allowMultiple) {
                     return;
