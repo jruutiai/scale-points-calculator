@@ -307,7 +307,6 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
     });
     final savedPaths = _saved.map((e) => _getFullPath(e)).toList();
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_savedKey);
     return prefs.setStringList(_savedKey, savedPaths);
   }
 
