@@ -148,11 +148,11 @@
 		  "info": "slidersInfo",
 		  "items": [
 			{
-			  "points": -4,
+			  "points": -3,
 			  "title": "metal"
 			},
 			{
-			  "points": -2,
+			  "points": -1,
 			  "title": "plastic"
 			}
 		  ],
@@ -164,12 +164,12 @@
 		  "items": [
 			{
 			  "allowMultiple": true,
-			  "points": -4,
+			  "points": -3,
 			  "title": "metal"
 			},
 			{
 			  "allowMultiple": true,
-			  "points": -2,
+			  "points": -1,
 			  "title": "plastic"
 			}
 		  ],
