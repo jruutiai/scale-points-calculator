@@ -56,7 +56,7 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final savedKeys = prefs.getStringList(_savedKey);
 
-    if(savedKeys != null) {
+    if (savedKeys != null) {
       savedKeys.forEach((element) {
         saved.add(findItem(element, points));
       });
@@ -105,7 +105,8 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
   void _openLanguagePickerDialog() => showDialog(
         context: context,
         builder: (context) => Theme(
-            data: Theme.of(context).copyWith(primaryColor: Colors.pink),
+            data: Theme.of(context)
+                .copyWith(primaryColor: ThemeData.light().primaryColor),
             child: LanguagePickerDialog(
                 languagesList: defaultLanguagesList
                     .where((element) => context.supportedLocales
@@ -347,18 +348,22 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
                             await _add(item);
                           }
                         },
-                      )
+                      ),
+                      _infoButton(item)
                     ])
-                  : Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: Icon(
-                        alreadySaved > 0
-                            ? Icons.add_circle
-                            : Icons.add_circle_outline,
-                        color: alreadySaved > 0
-                            ? ThemeData.light().primaryColor
-                            : ThemeData.light().accentColor,
-                      )),
+                  : Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                      Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: Icon(
+                            alreadySaved > 0
+                                ? Icons.add_circle
+                                : Icons.add_circle_outline,
+                            color: alreadySaved > 0
+                                ? ThemeData.light().primaryColor
+                                : ThemeData.light().accentColor,
+                          )),
+                      _infoButton(item)
+                    ]),
               onTap: () async {
                 if (item.allowMultiple != null && item.allowMultiple) {
                   return;
@@ -377,11 +382,13 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
     } else {
       var children = <Widget>[
         ListTile(
-            title: Text(
-              tr(item.title),
-              style: _headerFont,
-            ),
-            subtitle: item.subtitle != null ? Text(tr(item.subtitle)) : null)
+          title: Text(
+            tr(item.title),
+            style: _headerFont,
+          ),
+          subtitle: item.subtitle != null ? Text(tr(item.subtitle)) : null,
+          trailing: _infoButton(item),
+        )
       ];
       item.items.forEach((element) {
         children.add(_buildRow(element, item));
@@ -391,4 +398,42 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
           child: Column(children: children));
     }
   }
+
+  Widget _infoButton(Item item) {
+    return item.info != null
+        ? Padding(
+            padding: const EdgeInsets.only(left: 16),
+            child: IconButton(
+              icon: Icon(
+                Icons.info_outline,
+                color: ThemeData.light().primaryColor,
+              ),
+              onPressed: () {
+                _openInfoDialog(tr(item.title), tr(item.info));
+              },
+            ))
+        : Padding(padding: const EdgeInsets.only(left: 56));
+  }
+
+  void _openInfoDialog(String title, String infoText) => showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+            title: Text(title),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  Text(infoText),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: Text(tr('close')),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ]);
+      });
 }

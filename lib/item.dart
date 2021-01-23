@@ -1,6 +1,6 @@
 class Item {
   Item(this.title, this.subtitle, this.items, this.points, this.maxSelections,
-      this.allowMultiple, this.exclusive);
+      this.allowMultiple, this.exclusive, this.info);
 
   String title;
   String subtitle;
@@ -9,6 +9,7 @@ class Item {
   int maxSelections;
   bool allowMultiple;
   bool exclusive;
+  String info;
 
   Item.fromJson(Map<String, dynamic> json)
       : title = json['title'],
@@ -19,7 +20,8 @@ class Item {
         points = json['points'],
         maxSelections = json['maxSelections'],
         allowMultiple = json['allowMultiple'],
-        exclusive = json['exclusive'];
+        exclusive = json['exclusive'],
+        info = json['info'];
 
   Map<String, dynamic> toJson() => {
         'title': title,
@@ -28,6 +30,7 @@ class Item {
         'points': points,
         'maxSelections': maxSelections,
         'allowMultiple': allowMultiple,
-        'exclusive': exclusive
+        'exclusive': exclusive,
+        'info': info
       };
 }
