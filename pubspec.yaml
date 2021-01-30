@@ -36,6 +36,8 @@ dependencies:
 
   shared_preferences: ^0.5.4+8
 
+  clippy: ^1.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

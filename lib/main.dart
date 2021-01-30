@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:language_pickers/language_picker_dialog.dart';
 import 'package:language_pickers/languages.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:clippy/browser.dart' as clippy;
 
 import 'item.dart';
 
@@ -253,6 +254,22 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
     return list;
   }
 
+  String getSummaryText(Item item, int level) {
+    String text = "";
+
+    if (_saved.contains(item)) {
+      final count = _saved.where((element) => element == item).length;
+      text = "${" " * level}$text${tr(item.title)} (${item.points * count})\n";
+    } else if (_hasSelectedChildren(item)) {
+      text = "${" " * level}$text${tr(item.title)}\n";
+      item.items.forEach((element) {
+        text = "$text${getSummaryText(element, level + 1)}";
+      });
+    }
+
+    return text;
+  }
+
   void _showSummaryView() {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
@@ -266,6 +283,19 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
           return Scaffold(
             appBar: AppBar(
               title: Text("${tr('totalPoints')}: ${getPoints()}"),
+              actions: [
+                IconButton(
+                    icon:
+                        Icon(Icons.copy, color: ThemeData.light().accentColor),
+                    onPressed: () async {
+                      var text = "";
+                      _points.items.forEach((element) {
+                        text = "$text${getSummaryText(element, 0)}";
+                      });
+                      text = "$text${tr('totalPoints')}: ${getPoints()}";
+                      await clippy.write(text);
+                    })
+              ],
             ),
             body: ListView(
               padding: EdgeInsets.all(16),
