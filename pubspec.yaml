@@ -31,10 +31,10 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.1
 
-  language_pickers: ^0.2.0+1
-  easy_localization: ^2.3.3
+  language_picker: ^0.4.3
+  easy_localization: ^3.0.1
 
-  shared_preferences: ^0.5.4+8
+  shared_preferences: ^2.0.18
 
   clippy: ^1.0.0
 

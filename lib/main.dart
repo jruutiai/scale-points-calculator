@@ -3,14 +3,15 @@ import 'dart:convert';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:language_pickers/language_picker_dialog.dart';
-import 'package:language_pickers/languages.dart';
+import 'package:language_picker/language_picker_dialog.dart';
+import 'package:language_picker/languages.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:clippy/browser.dart' as clippy;
 
 import 'item.dart';
 
-void main() {
+void main() async {
+  await EasyLocalization.ensureInitialized();
   runApp(
     EasyLocalization(
         useOnlyLangCode: true,
@@ -109,17 +110,16 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
             data: Theme.of(context)
                 .copyWith(primaryColor: ThemeData.light().primaryColor),
             child: LanguagePickerDialog(
-                languagesList: defaultLanguagesList
+                languages: Languages.defaultLanguages
                     .where((element) => context.supportedLocales
                         .map((e) => e.languageCode)
-                        .contains(element['isoCode']))
-                    .toList()
-                    .cast<Map<String, String>>(),
+                        .contains(element.isoCode))
+                    .toList(),
                 titlePadding: EdgeInsets.all(8.0),
                 isSearchable: false,
                 title: Text(tr('selectLanguage')),
                 onValuePicked: (Language language) => setState(() {
-                      context.locale = Locale(language.isoCode);
+                      context.setLocale(Locale(language.isoCode));
                     }),
                 itemBuilder: _buildDialogItem)),
       );
@@ -158,9 +158,10 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                child: FlatButton(
-                  color: ThemeData.light().buttonColor,
-                  padding: EdgeInsets.all(16.0),
+                child: FilledButton(
+                  style: ButtonStyle(
+                      padding: MaterialStateProperty.all<EdgeInsetsGeometry>(EdgeInsets.all(16.0))
+                  ),
                   onPressed: getPoints() < 0
                       ? () {
                           _showSummaryView();
@@ -173,9 +174,10 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
                 )),
             Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                child: FlatButton(
-                  color: ThemeData.light().buttonColor,
-                  padding: EdgeInsets.all(16.0),
+                child: FilledButton(
+                  style: ButtonStyle(
+                      padding: MaterialStateProperty.all<EdgeInsetsGeometry>(EdgeInsets.all(16.0))
+                  ),
                   onPressed: () async {
                     await _clearSaved();
                   },
@@ -286,7 +288,7 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
               actions: [
                 IconButton(
                     icon:
-                        Icon(Icons.copy, color: ThemeData.light().accentColor),
+                        Icon(Icons.copy),
                     onPressed: () async {
                       var text = "";
                       _points.items.forEach((element) {
@@ -357,7 +359,7 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
                       IconButton(
                         icon: Icon(Icons.remove,
                             color: alreadySaved > 0
-                                ? ThemeData.light().accentColor
+                                ? ThemeData.light().colorScheme.secondary
                                 : ThemeData.light().disabledColor),
                         onPressed: () async {
                           await _remove(item);
@@ -370,7 +372,7 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
                         icon: Icon(Icons.add,
                             color: item.maxSelections == null ||
                                     alreadySaved < item.maxSelections
-                                ? ThemeData.light().accentColor
+                                ? ThemeData.light().colorScheme.secondary
                                 : ThemeData.light().disabledColor),
                         onPressed: () async {
                           if (item.maxSelections == null ||
@@ -390,7 +392,7 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
                                 : Icons.add_circle_outline,
                             color: alreadySaved > 0
                                 ? ThemeData.light().primaryColor
-                                : ThemeData.light().accentColor,
+                                : ThemeData.light().colorScheme.secondary,
                           )),
                       _infoButton(item)
                     ]),
