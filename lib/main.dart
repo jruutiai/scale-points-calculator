@@ -15,7 +15,7 @@ void main() async {
   runApp(
     EasyLocalization(
         useOnlyLangCode: true,
-        supportedLocales: [Locale('en'), Locale('fi')],
+        supportedLocales: [Locale('en')/*, Locale('fi')*/],
         path: 'assets/i18n',
         fallbackLocale: Locale('en'),
         child: MyApp()),
@@ -49,16 +49,18 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
   final _biggerFont = TextStyle(fontSize: 18.0);
   final _listFont = TextStyle(fontSize: 16.0);
   Item _points;
-  final _savedKey = "SAVED_ITEMS";
+  final _savedItemsKey = "SAVED_ITEMS";
+  final _savedVersionKey = "VERSION";
 
   loadJson() async {
     String data = await rootBundle.loadString('assets/points.json');
     final points = Item.fromJson(json.decode(data));
     final saved = <Item>[];
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final savedKeys = prefs.getStringList(_savedKey);
+    final savedKeys = prefs.getStringList(_savedItemsKey);
+    final savedVersion = prefs.containsKey(_savedVersionKey) ? prefs.getString(_savedVersionKey) : "";
 
-    if (savedKeys != null) {
+    if (savedKeys != null && savedVersion == points.version) {
       savedKeys.forEach((element) {
         saved.add(findItem(element, points));
       });
@@ -322,7 +324,7 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
       _saved.clear();
     });
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.remove(_savedKey);
+    return prefs.remove(_savedItemsKey);
   }
 
   Future<bool> _add(Item item) async {
@@ -331,7 +333,8 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
     });
     final savedPaths = _saved.map((e) => _getFullPath(e)).toList();
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.setStringList(_savedKey, savedPaths);
+    prefs.setString(_savedVersionKey, _points.version);
+    return prefs.setStringList(_savedItemsKey, savedPaths);
   }
 
   Future<bool> _remove(Item item) async {
@@ -340,7 +343,7 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
     });
     final savedPaths = _saved.map((e) => _getFullPath(e)).toList();
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.setStringList(_savedKey, savedPaths);
+    return prefs.setStringList(_savedItemsKey, savedPaths);
   }
 
   Widget _buildRow(Item item, [Item parent]) {
@@ -403,7 +406,7 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
                 if (alreadySaved > 0) {
                   await _remove(item);
                 } else {
-                  if (parent.exclusive != null && parent.exclusive) {
+                  if (parent != null && parent.exclusive != null && parent.exclusive) {
                     parent.items.forEach((element) async {
                       await _remove(element);
                     });
