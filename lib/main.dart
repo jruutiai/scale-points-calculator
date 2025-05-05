@@ -3,19 +3,18 @@ import 'dart:convert';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:language_picker/language_picker_dialog.dart';
-import 'package:language_picker/languages.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:clippy/browser.dart' as clippy;
 
 import 'item.dart';
+
+enum rules { uninitialized, sorrca, rcoffi }
 
 void main() async {
   await EasyLocalization.ensureInitialized();
   runApp(
     EasyLocalization(
         useOnlyLangCode: true,
-        supportedLocales: [Locale('en')/*, Locale('fi')*/],
+        supportedLocales: [Locale('en'), Locale('fi')],
         path: 'assets/i18n',
         fallbackLocale: Locale('en'),
         child: MyApp()),
@@ -48,12 +47,13 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
   final _headerFont = TextStyle(fontSize: 22.0);
   final _biggerFont = TextStyle(fontSize: 18.0);
   final _listFont = TextStyle(fontSize: 16.0);
-  Item _points;
+  Item? _points;
   final _savedItemsKey = "SAVED_ITEMS";
   final _savedVersionKey = "VERSION";
+  rules selected = rules.uninitialized;
 
   loadJson() async {
-    String data = await rootBundle.loadString('assets/points.json');
+    String data = await rootBundle.loadString('assets/' + selected.name + '.json');
     final points = Item.fromJson(json.decode(data));
     final saved = <Item>[];
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -83,50 +83,65 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await loadJson();
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(tr('appName')),
         actions: [
-          IconButton(
-              icon: Icon(Icons.list), onPressed: _openLanguagePickerDialog),
         ],
       ),
       body: _buildUI(),
     );
   }
 
-  Widget _buildDialogItem(Language language) => Text(language.name);
-
-  void _openLanguagePickerDialog() => showDialog(
-        context: context,
-        builder: (context) => Theme(
-            data: Theme.of(context)
-                .copyWith(primaryColor: ThemeData.light().primaryColor),
-            child: LanguagePickerDialog(
-                languages: Languages.defaultLanguages
-                    .where((element) => context.supportedLocales
-                        .map((e) => e.languageCode)
-                        .contains(element.isoCode))
-                    .toList(),
-                titlePadding: EdgeInsets.all(8.0),
-                isSearchable: false,
-                title: Text(tr('selectLanguage')),
-                onValuePicked: (Language language) => setState(() {
-                      context.setLocale(Locale(language.isoCode));
-                    }),
-                itemBuilder: _buildDialogItem)),
-      );
-
   Widget _buildUI() {
+    if(selected == rules.uninitialized) {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.max,
+        children: <Widget>[
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: FilledButton(
+                  style: ButtonStyle(
+                      padding: WidgetStatePropertyAll<EdgeInsetsGeometry>(EdgeInsets.all(16.0))
+                  ),
+                  onPressed: () async {
+                    setState(() {
+                      selected = rules.sorrca;
+                      loadJson();
+                      context.setLocale(Locale('en'));
+                    });
+                  },
+                  child: Text(
+                    'SORRCA',
+                    style: _biggerFont,
+                  ),
+                )),
+            Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: FilledButton(
+                  style: ButtonStyle(
+                      padding: WidgetStatePropertyAll<EdgeInsetsGeometry>(EdgeInsets.all(16.0))
+                  ),
+                  onPressed: () async {
+                    setState(() {
+                      selected = rules.rcoffi;
+                      loadJson();
+                      context.setLocale(Locale('fi'));
+                    });
+                  },
+                  child: Text(
+                    'RC-OFFI',
+                    style: _biggerFont,
+                  ),
+                ))
+          ])
+        ],
+      );
+    }
+
     if (_points == null) {
       return Text(tr('loading'));
     } else {
@@ -142,7 +157,7 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
               child: ListView.builder(
                   padding: EdgeInsets.all(16.0),
                   itemBuilder: (context, i) {
-                    if (i >= _points.items.length) {
+                    if (i >= _points!.items.length) {
                       return null;
                     }
                     return Column(
@@ -154,7 +169,7 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
                               child: Container(
                                   constraints: BoxConstraints(
                                       minWidth: 200, maxWidth: 800),
-                                  child: _buildRow(_points.items[i])))
+                                  child: _buildRow(_points!.items[i])))
                         ]);
                   })),
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -162,7 +177,7 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
                 padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 child: FilledButton(
                   style: ButtonStyle(
-                      padding: MaterialStateProperty.all<EdgeInsetsGeometry>(EdgeInsets.all(16.0))
+                      padding: WidgetStatePropertyAll<EdgeInsetsGeometry>(EdgeInsets.all(16.0))
                   ),
                   onPressed: getPoints() < 0
                       ? () {
@@ -178,7 +193,7 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
                 padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 child: FilledButton(
                   style: ButtonStyle(
-                      padding: MaterialStateProperty.all<EdgeInsetsGeometry>(EdgeInsets.all(16.0))
+                      padding: WidgetStatePropertyAll<EdgeInsetsGeometry>(EdgeInsets.all(16.0))
                   ),
                   onPressed: () async {
                     await _clearSaved();
@@ -194,7 +209,7 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
     }
   }
 
-  Item _getParentFromBranch(Item item, Item branch) {
+  Item? _getParentFromBranch(Item item, Item branch) {
     if (branch.items.contains(item)) {
       return branch;
     } else {
@@ -208,30 +223,30 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
     return null;
   }
 
-  String _getFullPath(Item item) {
-    final parent = _getParentFromBranch(item, _points);
-    if (parent == _points) {
-      return item.title;
+  String _getFullPath(Item? item) {
+    if (item == null) {
+      return "";
     } else {
-      return "${_getFullPath(parent)}.${item.title}";
+      final parent = _getParentFromBranch(item, _points!);
+      if (parent == _points) {
+        return item.title!;
+      } else {
+        return "${_getFullPath(parent)}.${item.title!}";
+      }
     }
   }
 
   bool _hasSelectedChildren(Item item) {
     var ret = false;
-    if (item.items != null) {
-      item.items.forEach((element) {
-        if (_saved.contains(element)) {
-          ret = true;
-        }
+    item.items.forEach((element) {
+      if (_saved.contains(element)) {
+        ret = true;
+      }
 
-        if (element.items != null) {
-          if (_hasSelectedChildren(element)) {
-            ret = true;
-          }
-        }
-      });
-    }
+      if (_hasSelectedChildren(element)) {
+        ret = true;
+      }
+        });
 
     return ret;
   }
@@ -243,13 +258,13 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
       list.add(Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.0 * level, vertical: 4),
           child: Text(
-            "${tr(item.title)} (${item.points * count})",
+            "${tr(item.title!)} (${item.points! * count})",
             style: _listFont,
           )));
     } else if (_hasSelectedChildren(item)) {
       list.add(Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.0 * level, vertical: 4),
-          child: Text(tr(item.title), style: _listFont)));
+          child: Text(tr(item.title!), style: _listFont)));
       item.items.forEach((element) {
         list.addAll(getTilesForSelectedSubItems(element, level + 1));
       });
@@ -263,12 +278,13 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
 
     if (_saved.contains(item)) {
       final count = _saved.where((element) => element == item).length;
-      text = "${" " * level}$text${tr(item.title)} (${item.points * count})\n";
+      text = "[*]$text${tr(item.title!)} (${item.points! * count})\n";
     } else if (_hasSelectedChildren(item)) {
-      text = "${" " * level}$text${tr(item.title)}\n";
+      text = "[*]$text${tr(item.title!)}\n[list]\n";
       item.items.forEach((element) {
         text = "$text${getSummaryText(element, level + 1)}";
       });
+      text = "$text[/list]\n";
     }
 
     return text;
@@ -280,7 +296,7 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
         builder: (BuildContext context) {
           List<Widget> tiles = <Widget>[];
 
-          _points.items.forEach((element) {
+          _points!.items.forEach((element) {
             tiles.addAll(getTilesForSelectedSubItems(element, 0));
           });
 
@@ -292,12 +308,12 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
                     icon:
                         Icon(Icons.copy),
                     onPressed: () async {
-                      var text = "";
-                      _points.items.forEach((element) {
+                      var text = "[list]";
+                      _points!.items.forEach((element) {
                         text = "$text${getSummaryText(element, 0)}";
                       });
-                      text = "$text${tr('totalPoints')}: ${getPoints()}";
-                      await clippy.write(text);
+                      text = "$text[/list]\n${tr('totalPoints')}: ${getPoints()}";
+                      await Clipboard.setData(ClipboardData(text: text));
                     })
               ],
             ),
@@ -314,7 +330,9 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
   int getPoints() {
     var points = 0;
     _saved.forEach((element) {
-      points += element.points;
+      if(element.points != null) {
+        points += element.points!;
+      }
     });
     return points;
   }
@@ -333,7 +351,7 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
     });
     final savedPaths = _saved.map((e) => _getFullPath(e)).toList();
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString(_savedVersionKey, _points.version);
+    prefs.setString(_savedVersionKey, _points!.version!);
     return prefs.setStringList(_savedItemsKey, savedPaths);
   }
 
@@ -346,18 +364,18 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
     return prefs.setStringList(_savedItemsKey, savedPaths);
   }
 
-  Widget _buildRow(Item item, [Item parent]) {
+  Widget _buildRow(Item item, [Item? parent]) {
     final alreadySaved = _saved.where((element) => element == item).length;
     if (item.points != null) {
       return Padding(
           padding: const EdgeInsets.only(left: 8),
           child: ListTile(
               title: Text(
-                "${tr(item.title)} (${item.points})",
+                "${tr(item.title!)} (${item.points})",
                 style: _biggerFont,
               ),
-              subtitle: item.subtitle != null ? Text(tr(item.subtitle)) : null,
-              trailing: item.allowMultiple != null && item.allowMultiple
+              subtitle: item.subtitle != null ? Text(tr(item.subtitle!)) : null,
+              trailing: item.allowMultiple
                   ? Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
                       IconButton(
                         icon: Icon(Icons.remove,
@@ -374,12 +392,12 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
                       IconButton(
                         icon: Icon(Icons.add,
                             color: item.maxSelections == null ||
-                                    alreadySaved < item.maxSelections
+                                    alreadySaved < item.maxSelections!
                                 ? ThemeData.light().colorScheme.secondary
                                 : ThemeData.light().disabledColor),
                         onPressed: () async {
                           if (item.maxSelections == null ||
-                              alreadySaved < item.maxSelections) {
+                              alreadySaved < item.maxSelections!) {
                             await _add(item);
                           }
                         },
@@ -400,13 +418,13 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
                       _infoButton(item)
                     ]),
               onTap: () async {
-                if (item.allowMultiple != null && item.allowMultiple) {
+                if (item.allowMultiple) {
                   return;
                 }
                 if (alreadySaved > 0) {
                   await _remove(item);
                 } else {
-                  if (parent != null && parent.exclusive != null && parent.exclusive) {
+                  if (parent != null && parent.exclusive) {
                     parent.items.forEach((element) async {
                       await _remove(element);
                     });
@@ -418,10 +436,10 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
       var children = <Widget>[
         ListTile(
           title: Text(
-            tr(item.title),
+            tr(item.title!),
             style: _headerFont,
           ),
-          subtitle: item.subtitle != null ? Text(tr(item.subtitle)) : null,
+          subtitle: item.subtitle != null ? Text(tr(item.subtitle!)) : null,
           trailing: _infoButton(item),
         )
       ];
@@ -444,7 +462,7 @@ class _ScalePointsCalculatorState extends State<ScalePointsCalculator> {
                 color: ThemeData.light().primaryColor,
               ),
               onPressed: () {
-                _openInfoDialog(tr(item.title), tr(item.info));
+                _openInfoDialog(tr(item.title!), tr(item.info!));
               },
             ))
         : Padding(padding: const EdgeInsets.only(left: 56));

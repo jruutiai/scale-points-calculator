@@ -6,11 +6,9 @@ on:
 jobs:
   build:
     name: Build Web
-    env:
-      my_secret: ${{secrets.commit_secret}}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
@@ -23,7 +21,7 @@ jobs:
           git config --global user.email jruutiai@users.noreply.github.com
           git config --global user.name jruutiai
           git status
-          git remote add origin https://${{secrets.commit_secret}}@github.com/jruutiai/scale-points-calculator.git
+          git remote add origin https://${{secrets.GITHUB_TOKEN}}@github.com/jruutiai/scale-points-calculator.git
           git checkout -b gh-pages
           git add --all
           git commit -m "update"

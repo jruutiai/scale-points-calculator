@@ -6,42 +6,15 @@
           "info": "hardBodyInfo",
           "items": [
             {
-              "items": [
-                {
-                  "points": -4,
-                  "title": "hardBody"
-                },
-                {
-                  "points": -1,
-                  "title": "customHardBody"
-                }
-              ],
+              "points": -4,
               "title": "frontRectangle"
             },
             {
-              "items": [
-                {
-                  "points": -4,
-                  "title": "hardBody"
-                },
-                {
-                  "points": -1,
-                  "title": "customHardBody"
-                }
-              ],
+              "points": -4,
               "title": "centerRectangle"
             },
             {
-              "items": [
-                {
-                  "points": -4,
-                  "title": "hardBody"
-                },
-                {
-                  "points": -1,
-                  "title": "customHardBody"
-                }
-              ],
+              "points": -4,
               "title": "rearRectangle"
             }
           ],
@@ -156,13 +129,13 @@
           "items": [
             {
               "allowMultiple": true,
-              "maxSelections": 3,
-              "points": -3,
+              "maxSelections": 2,
+              "points": -2,
               "title": "metal"
             },
             {
               "allowMultiple": true,
-              "maxSelections": 3,
+              "maxSelections": 2,
               "points": -1,
               "title": "plastic"
             }
@@ -251,23 +224,19 @@
           "info": "fullInteriorInfo",
           "items": [
             {
-              "points": -3,
+              "points": -4,
               "title": "1seat"
             },
             {
-              "points": -4,
+              "points": -5,
               "title": "2seat"
             },
             {
-              "points": -5,
+              "points": -6,
               "title": "4seat"
             }
           ],
           "title": "fullInterior"
-        },
-        {
-          "points": -2,
-          "title": "customFullInterior"
         },
         {
           "exclusive": true,
@@ -302,20 +271,12 @@
           "info": "driverInfo",
           "items": [
             {
-              "points": -4,
+              "points": -2,
               "title": "fullFigure"
             },
             {
-              "points": -3,
-              "title": "kneesUp"
-            },
-            {
-              "points": -2,
-              "title": "waistUp"
-            },
-            {
               "points": -1,
-              "title": "armsUp"
+              "title": "waistUp"
             }
           ],
           "title": "driver"
@@ -325,20 +286,12 @@
           "info": "driverInfo",
           "items": [
             {
-              "points": -4,
+              "points": -2,
               "title": "fullFigure"
             },
             {
-              "points": -3,
-              "title": "kneesUp"
-            },
-            {
-              "points": -2,
-              "title": "waistUp"
-            },
-            {
               "points": -1,
-              "title": "armsUp"
+              "title": "waistUp"
             }
           ],
           "title": "passenger"
@@ -371,7 +324,7 @@
               "title": "3axle"
             },
             {
-              "points": -5,
+              "points": -4,
               "title": "4axle"
             }
           ],
@@ -390,11 +343,6 @@
             }
           ],
           "title": "cms"
-        },
-        {
-          "info": "transferCaseInfo",
-          "points": -4,
-          "title": "transferCase"
         },
         {
           "exclusive": true,
@@ -417,7 +365,7 @@
     {
       "allowMultiple": true,
       "info": "scaleItemInfo",
-      "maxSelections": 14,
+      "maxSelections": 10,
       "points": -1,
       "title": "scaleItem"
     },
@@ -427,5 +375,5 @@
       "title": "spareTire"
     }
   ],
-  "version": "2022-12-06"
+  "version": "SORRCA-2024-06-01"
 }

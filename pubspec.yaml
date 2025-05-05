@@ -18,7 +18,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
+  sdk: ">=2.15.0 <3.0.0"
 
 dependencies:
   flutter:
@@ -35,8 +35,6 @@ dependencies:
   easy_localization: ^3.0.1
 
   shared_preferences: ^2.0.18
-
-  clippy: ^1.0.0
 
 dev_dependencies:
   flutter_test:
@@ -60,7 +58,8 @@ flutter:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
   assets:
-    - assets/points.json
+    - assets/rcoffi.json
+    - assets/sorrca.json
     - assets/i18n/en.json
     - assets/i18n/fi.json
 
