@@ -15,14 +15,8 @@ jobs:
       - run: flutter config --enable-web
       - run: flutter pub get
       - run: flutter build web --release
-      - run: |
-          cd build/web
-          git init
-          git config --global user.email jruutiai@users.noreply.github.com
-          git config --global user.name jruutiai
-          git status
-          git remote add origin https://${{secrets.GITHUB_TOKEN}}@github.com/jruutiai/scale-points-calculator.git
-          git checkout -b gh-pages
-          git add --all
-          git commit -m "update"
-          git push origin gh-pages -f
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/web
